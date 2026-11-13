@@ -4,7 +4,16 @@ A social deduction game for 5–10 players. Most of you are still Human. A few a
 
 This is a **non-commercial fan adaptation**. The mechanics follow official [Secret Hitler](https://www.secrethitler.com/) (CC BY-NC-SA 4.0), created by Mike Boxleiter, Tommy Maranges, and Mac Schubert. The theme, names, and rules wording are original (Humans / Infected / Patient Zero, Squad Leader / Medic, Cure / Outbreak). There are no ads and no payments. This project is also released under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). You may not sell it or submit it to an app store.
 
-Play **online** with a 4-letter room code (each person on their own phone) or **pass-and-play** on one device.
+Live: https://patient-zero-ia45.onrender.com
+
+Four ways to play:
+
+- **Online** – create a room, share the 4-letter code, everyone joins on their own phone.
+- **Play with bots** – you against 4–9 computer players (runs fully in the browser, works offline). Optional “reveal all roles” checkbox for testing.
+- **Solo practice** – one device, you control every seat and can see every role; the screen jumps to whoever has to act next.
+- **Pass-and-play** – one phone handed around a real table.
+
+v3 adds a full game board (Cure track, Outbreak track with power icons, failed-vote tracker, draw and thrown-away piles), original zombie-poster card art for every card (`public/art.js`, inline SVG), a “What do I do now?” banner, a 5-screen illustrated How to Play, tap-for-tooltips on the board, tap-to-flip private role cards, and a plain-language end-of-game recap. Bot logic lives in `public/bots.js`.
 
 ## Run it locally
 
@@ -22,7 +31,7 @@ Open [http://localhost:3000](http://localhost:3000). To play online on real phon
 npm test
 ```
 
-runs the automated bot games (5, 7, and 10 players, including wins, veto, special leadership, and reconnect).
+runs the automated bot games (5, 7, and 10 players, including wins, veto, special leadership, and reconnect) and `test-modes.js` (hundreds of full Play-with-bots and Solo-practice games, card art check, client script syntax check).
 
 ## Deploy for free on Render (recommended)
 
