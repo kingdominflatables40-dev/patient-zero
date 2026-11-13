@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0d0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Patient Zero</title>
+<style>
+:root{--bg:#0a0d0a;--bg2:#141a14;--fg:#e8e6d8;--dim:#8c937f;--goo:#b6e05a;--goo2:#4e7a22;--blood:#c4453c;--paper:#e4d5b5;--line:#2a3328;--card:#171d16;--yes:#7cb87a;--zero:#e3b34f;--ink:#0c0f0c}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(1200px 600px at 50% -10%,#1a2a14 0%,transparent 55%),var(--bg)}
+#app{min-height:100%;max-width:460px;margin:0 auto;padding:14px 14px calc(18px + env(safe-area-inset-bottom))}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.stamp{width:72px;height:72px;margin:0 auto 10px;display:block}
+h1{font-size:1.7rem;letter-spacing:.16em;text-align:center;font-weight:800;color:var(--paper)}
+.sub{text-align:center;color:var(--dim);font-size:.92rem;margin:.3rem 0 1.1rem}
+.cardx{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0}
+.row{display:flex;gap:8px;align-items:center}
+label.nm{display:flex;gap:8px;align-items:center;margin:6px 0}
+label.nm span{width:1.4rem;color:var(--dim);font-size:.8rem}
+input[type=text]{flex:1;width:100%;background:#0e130e;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--fg)}
+.btn{display:block;width:100%;text-align:center;border-radius:12px;padding:13px 14px;margin:8px 0;font-weight:700;letter-spacing:.04em}
+.btn.p{background:linear-gradient(180deg,#c9e878,#7daa32);color:var(--ink)}
+.btn.g{background:#222a20;border:1px solid var(--line)}
+.btn.d{background:linear-gradient(180deg,#8a2420,#5a1410);color:#f3d4d0}
+.btn.y{background:linear-gradient(180deg,#8ed08a,#3e7a3c);color:#062006}
+.btn.n{background:linear-gradient(180deg,#d1675f,#8a2a24);color:#fff}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn.sm{width:auto;display:inline-block;padding:8px 12px;font-size:.85rem;margin:0}
+.muted{color:var(--dim);font-size:.88rem}
+.center{text-align:center}
+.fine{font-size:.78rem;color:var(--dim);margin-top:8px}
+.lock,.role{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100dvh - 40px);text-align:center;padding:20px 8px}
+.lock h2,.role .hint{font-size:.78rem;letter-spacing:.18em;color:var(--dim);font-weight:700;margin-bottom:8px}
+.lock .who{font-size:2rem;font-weight:800;color:var(--paper);margin:.2rem 0 1rem}
+.tag{display:inline-block;letter-spacing:.2em;font-weight:800;font-size:.85rem;padding:6px 12px;border-radius:999px;margin-bottom:10px}
+.tag.h{background:#16321c;color:var(--goo);border:1px solid #2d5a30}
+.tag.i{background:#3a1412;color:#f0a8a2;border:1px solid #7a3030}
+.tag.z{background:#3a2e10;color:var(--zero);border:1px solid #8a7020}
+.tracks{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.trk{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px}
+.trk b{display:block;font-size:.68rem;letter-spacing:.12em;color:var(--dim)}
+.pips{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap}
+.pip{width:14px;height:14px;border-radius:4px;border:1px solid var(--line);background:#0e130e;position:relative}
+.pip.on.c{background:var(--goo);border-color:var(--goo2);box-shadow:0 0 6px #b6e05a88}
+.pip.on.o{background:var(--blood);border-color:#8a2a24;box-shadow:0 0 6px #c4453c88}
+.pip small{display:none}
+.pwrline{font-size:.68rem;color:var(--dim);line-height:1.35;margin-top:6px}
+.fails{display:flex;gap:6px;align-items:center;justify-content:center;margin:6px 0 10px;color:var(--dim);font-size:.78rem;letter-spacing:.08em}
+.fails i{width:10px;height:10px;border-radius:50%;border:1px solid var(--line);display:inline-block}
+.fails i.on{background:var(--zero);border-color:var(--zero)}
+.plist{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:8px 0}
+.av{width:72px;text-align:center;position:relative}
+.av .dot{width:44px;height:44px;border-radius:50%;margin:0 auto 4px;display:grid;place-items:center;font-weight:800;background:#222a20;border:2px solid var(--line)}
+.av.lead .dot{border-color:var(--goo);box-shadow:0 0 0 2px #b6e05a33}
+.av.med .dot{border-color:var(--zero)}
+.av.dead{opacity:.38}
+.av.dead .dot{background:#2a1816;border-color:#5a3030}
+.av.sel .dot{border-color:var(--paper);box-shadow:0 0 0 3px #e4d5b555}
+.av.offline .dot{border-style:dashed}
+.av small{display:block;font-size:.72rem;line-height:1.15;word-break:break-word}
+.badge{position:absolute;top:-4px;right:8px;font-size:.6rem;font-weight:800;background:var(--goo);color:var(--ink);border-radius:6px;padding:1px 4px}
+.badge.m{background:var(--zero)}
+.supply{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0;width:100%}
+.sc{width:104px;height:140px;border-radius:12px;border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px;background:#101610}
+.sc b{letter-spacing:.12em;font-size:.78rem}
+.sc.c{border-color:#4e7a22;background:linear-gradient(180deg,#1a2a16,#101610);color:var(--goo)}
+.sc.o{border-color:#8a2a24;background:linear-gradient(180deg,#2a1412,#120c0c);color:#f0a8a2}
+.sc.sel{outline:3px solid var(--paper);transform:translateY(-4px)}
+.sc .ic{width:40px;height:40px;margin-bottom:8px}
+.log{max-height:140px;overflow:auto;font-size:.8rem;color:var(--dim);background:#0e130e;border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-top:10px}
+.log div{margin:0 0 6px;padding-bottom:6px;border-bottom:1px solid #1c241c}
+.log div:last-child{margin:0;border:0;padding:0}
+.topnav{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.topnav button{color:var(--dim);font-size:.78rem;letter-spacing:.1em;font-weight:700;padding:6px}
+h3{font-size:.95rem;margin:4px 0 8px;letter-spacing:.04em}
+.win{text-align:center;padding:16px 6px}
+.win h2{font-size:1.5rem;letter-spacing:.08em;margin:8px 0}
+.roles-end{text-align:left;margin-top:12px}
+.roles-end div{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+.roles-end div:last-child{border:0}
+.warn{color:var(--zero);font-size:.85rem;margin:6px 0}
+.rules{font-size:.92rem;color:#d4d2c4}
+.rules h2{font-size:1.1rem;margin:4px 0 8px;color:var(--paper)}
+.rules h3{margin-top:14px;color:var(--goo);letter-spacing:.08em;font-size:.8rem}
+.rules p,.rules li{margin:0 0 8px}
+.rules ul{padding-left:1.1rem}
+.vrow{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:.92rem}
+.yesv{color:var(--yes);font-weight:700}
+.nov{color:#f0a8a2;font-weight:700}
+.codebig{font-size:2rem;letter-spacing:.28em;text-align:center;font-weight:800;color:var(--paper);padding:8px 0}
+.chat{display:flex;gap:6px;margin-top:8px}
+.chat input{flex:1}
+.err{background:#3a1412;color:#f0a8a2;border-radius:10px;padding:8px 10px;margin:8px 0;font-size:.88rem}
+.dotok{color:var(--goo);font-size:.7rem}
+.dotoff{color:#888}
+.seat{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line)}
+.role .btn,.role .supply,.role p,.role h3{width:100%}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script src="/engine.js"></script>
+<script>
+(function(){
+"use strict";
+const E=window.PZEngine;
+const app=document.getElementById("app");
+const VIR='<svg class="stamp" viewBox="0 0 72 72" aria-hidden="true"><circle cx="36" cy="36" r="10" fill="none" stroke="#b6e05a" stroke-width="3"/><path d="M36 8v12M36 52v12M8 36h12M52 36h12M16 16l9 9M47 47l9 9M16 56l9-9M47 25l9-9" stroke="#b6e05a" stroke-width="3" stroke-linecap="round"/><circle cx="36" cy="36" r="4" fill="#c4453c"/></svg>';
+const ICV='<svg class="ic" viewBox="0 0 40 40"><circle cx="20" cy="20" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M20 4v8M20 28v8M4 20h8M28 20h8M8 8l6 6M26 26l6 6M8 32l6-6M26 14l6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const ICG='<svg class="ic" viewBox="0 0 40 40"><rect x="14" y="6" width="12" height="28" rx="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M14 16h12" stroke="currentColor" stroke-width="2"/><circle cx="20" cy="26" r="3" fill="currentColor"/></svg>';
+
+let ac=null,muted=false,errMsg='',screen='home',backScreen='home';
+let names=["Maya","Jonah","Rin","Cole","Asha"];
+let hot={game:null,lock:null,view:'lock',pick:null,nightI:0};
+let net={ws:null,code:'',name:'',you:'',lobby:null,pub:null,priv:null,chat:[],status:'idle',retry:0};
+let toast='';
+
+function resumeAud(){if(!ac){try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){return}}if(ac&&ac.state==='suspended')ac.resume()}
+function beep(f,d,typ,v,at){if(muted||!ac)return;const t=ac.currentTime+(at||0),o=ac.createOscillator(),g=ac.createGain();o.type=typ||'square';o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v||.07,t);g.gain.exponentialRampToValueAtTime(.001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02)}
+function snd(k){resumeAud();if(k==='tap')beep(220,.05,'square',.05);else if(k==='go'){beep(440,.08,'triangle',.07);beep(660,.12,'triangle',.06,.07)}else if(k==='yes'){beep(523,.1,'triangle',.08);beep(784,.16,'triangle',.07,.1)}else if(k==='no')beep(196,.2,'sawtooth',.06);else if(k==='cure'){beep(523,.1,'sine',.08);beep(659,.1,'sine',.08,.1);beep(784,.2,'sine',.08,.2)}else if(k==='out'){beep(90,.28,'sawtooth',.08);beep(70,.35,'square',.05,.08)}else if(k==='winH'){beep(392,.12,'triangle',.08);beep(523,.12,'triangle',.08,.12);beep(659,.28,'triangle',.09,.24)}else if(k==='winI'){beep(155,.2,'sawtooth',.08);beep(123,.25,'sawtooth',.07,.18);beep(98,.4,'sawtooth',.07,.35)}}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+const RULES=`<div class="rules">
+<h2>How to play</h2>
+<p>You are the night shift at a remote medical outpost. Something got out of the lab. Most of you are still Human. A few are already Infected, and one of them is Patient Zero — the source. Humans want to finish a Cure. The Infected want the outbreak to spread, or to slip Patient Zero into the medic bay once things are already dire.</p>
+<h3>Teams</h3>
+<ul>
+<li>5 players: 3 Humans, 1 Infected, Patient Zero</li>
+<li>6: 4 Humans, 1 Infected, Patient Zero</li>
+<li>7: 4 Humans, 2 Infected, Patient Zero</li>
+<li>8: 5 Humans, 2 Infected, Patient Zero</li>
+<li>9: 5 Humans, 3 Infected, Patient Zero</li>
+<li>10: 6 Humans, 3 Infected, Patient Zero</li>
+</ul>
+<p>The Infected always know the other Infected, including Patient Zero. Patient Zero knows the rest of the Infected only in games of 5 or 6. In games of 7 to 10, Patient Zero does not know who the allies are. Humans know only their own role.</p>
+<h3>A round</h3>
+<p>One living player is the Squad Leader. At the start of each new round, that role moves to the next living player around the table (except after an appointed-Leader turn, described below). The Leader nominates a living teammate as Medic. Everyone still in the game votes Yes or No in secret, then all votes are shown. A tie or a majority No fails.</p>
+<p>If the vote fails, leadership moves on and a failed-confirmation mark is added. Three failed confirmations in a row cause a panic: the top card of the Supply deck is used automatically, no Leader power is granted, and term limits are cleared for the next nomination.</p>
+<p>If the vote passes, the pair becomes Leader and Medic. Once three or more Outbreaks are already on the board, if the new Medic is Patient Zero, the Infected win immediately. If that Medic is not Patient Zero, the group is told they are not Patient Zero.</p>
+<p>Otherwise the Leader draws three Supply cards, buries one in the discard, and hands the other two to the Medic. The Medic buries one and puts the last one into effect. Buried cards are never shown. Players may lie about hidden information; the only time the truth must be told is when Patient Zero is quarantined or is confirmed as Medic after three Outbreaks.</p>
+<h3>Supply and winning</h3>
+<p>The deck has 11 Outbreak cards and 6 Cure cards. Humans win by putting 5 Cures into effect, or by quarantining Patient Zero. The Infected win by putting 6 Outbreaks into effect, or by getting Patient Zero confirmed as Medic after 3 Outbreaks are already on the board. If the deck has fewer than three cards left after a card is used, the remaining cards are shuffled with the discard to make a new deck. The failed-confirmation marks reset whenever a supply card is used, including during a panic.</p>
+<h3>Term limits</h3>
+<p>The Leader cannot nominate themselves. The last confirmed Leader and Medic cannot be nominated as Medic. When five or fewer players remain, only the last confirmed Medic is blocked (the last Leader may be nominated). Term limits apply to the last pair that was actually confirmed, not to a pair that was only nominated and voted down. Anyone may serve as Leader, even someone who was just the Medic.</p>
+<h3>Outbreak powers</h3>
+<p>When an Outbreak is put into effect by a confirmed Leader and Medic (not by a panic card), the current Leader must use the power on that space, if there is one. The board depends on how many people sat down at the start:</p>
+<ul>
+<li>5–6 players: spaces 1–2 have no power; 3 Supply peek; 4 and 5 Quarantine.</li>
+<li>7–8 players: space 1 has no power; 2 Blood test; 3 Appoint next Leader; 4 and 5 Quarantine.</li>
+<li>9–10 players: spaces 1 and 2 Blood test; 3 Appoint next Leader; 4 and 5 Quarantine.</li>
+</ul>
+<p><b>Blood test:</b> The Leader privately learns whether one other living player is Human or Infected. Patient Zero reads as Infected. The group sees who was tested, not the result. No one may be tested twice.</p>
+<p><b>Supply peek:</b> The Leader privately sees the top three cards of the deck, in order, and leaves them where they are.</p>
+<p><b>Appoint next Leader:</b> The Leader chooses any other living player to take the next Leader shift, even someone who is term-limited. After that one shift (whether the vote passes or fails), leadership returns to the living player after the Leader who used this power, so no one is skipped in the normal order.</p>
+<p><b>Quarantine:</b> The Leader removes one other living player from the game. That person no longer votes, nominates, or leads. If they are Patient Zero, Humans win and this is announced. If they are not, the group is not told whether they were Human or Infected.</p>
+<h3>Veto</h3>
+<p>After five Outbreaks are already on the board, the Medic may ask to veto a draw instead of putting a card into effect. If the Leader agrees, both remaining cards are buried and a failed-confirmation mark is added (this can cause a panic if it is the third mark). If the Leader refuses, the Medic must put one of the two cards into effect.</p>
+<h3>How to play this version</h3>
+<p>Play online with a room code, each person on their own phone, or pass-and-play on one device. In pass-and-play, only the person named on the lock screen should look. This is a non-commercial fan adaptation. There are no ads or payments.</p>
+<p class="fine">Game mechanics inspired by Secret Hitler (CC BY-NC-SA 4.0); this is a non-commercial fan adaptation. Secret Hitler was created by Mike Boxleiter, Tommy Maranges, and Mac Schubert. secrethitler.com — this work is also released under CC BY-NC-SA 4.0.</p>
+</div>`;
+
+function pipRow(n,on,cls,labels){
+  let h='';
+  for(let i=0;i<n;i++) h+=`<i class="pip${i<on?' on '+cls:''}"></i>`;
+  return h;
+}
+function trackHtml(pub){
+  const tr=pub.track||[];
+  const labels=tr.map((p,i)=> (i+1)+' '+(p?E.powerLabel(p):'—')).join(' · ');
+  let c='',o='';
+  for(let i=0;i<5;i++) c+=`<i class="pip${i<pub.cures?' on c':''}"></i>`;
+  for(let i=0;i<6;i++) o+=`<i class="pip${i<pub.outbreaks?' on o':''}"></i>`;
+  return `<div class="tracks"><div class="trk"><b>CURES ${pub.cures}/5</b><div class="pips">${c}</div></div>
+  <div class="trk"><b>OUTBREAKS ${pub.outbreaks}/6</b><div class="pips">${o}</div>
+  <div class="pwrline">${esc(labels)}${pub.vetoOn?' · Veto is live':''}</div></div></div>
+  <div class="fails">FAILED ${[0,1,2].map(i=>`<i${i<pub.fails?' class=on':''}></i>`).join('')} ${pub.fails}/3</div>`;
+}
+function playersHtml(pub,opts){
+  opts=opts||{};
+  const seats=net.lobby&&net.lobby.players||[];
+  return `<div class="plist">${pub.players.map(p=>{
+    const lead=p.id===pub.leader&&p.alive, med=pub.medic!=null&&p.id===pub.medic&&p.alive;
+    const sel=opts.selected===p.id;
+    const can=opts.pickable&&p.alive&&(!opts.ids||opts.ids.includes(p.id));
+    const offline=seats.length&&seats.find(s=>s.name===p.name)&&!seats.find(s=>s.name===p.name).connected;
+    const marks=(p.investigated?' · tested':'')+(p.knownNotZero?' · not PZ':'')+(offline?' · offline':'');
+    return `<button class="av${lead?' lead':''}${med?' med':''}${p.alive?'':' dead'}${sel?' sel':''}${offline?' offline':''}" ${can?`data-pick="${p.id}"`:''} ${can?'':'disabled'}>
+      <span class="dot">${esc(p.name).slice(0,1).toUpperCase()}</span>
+      ${lead?'<span class="badge">L</span>':med?'<span class="badge m">M</span>':''}
+      <small>${esc(p.name)}${p.alive?'':' · out'}${esc(marks)}</small>
+    </button>`;
+  }).join('')}</div>`;
+}
+function logHtml(pub){const items=(pub.log||[]).slice().reverse().slice(0,12);return `<div class="log">${items.map(t=>`<div>${esc(t)}</div>`).join('')||'<div>No events yet.</div>'}</div>`}
+function supplyCard(card,i,sel){const cure=card==='cure';return `<button type="button" class="sc ${cure?'c':'o'}${sel?' sel':''}" data-card="${i}">${cure?ICG:ICV}<b>${cure?'CURE':'OUTBREAK'}</b></button>`}
+function topnav(){return `<div class="topnav"><button type="button" data-act="rules">RULES</button>
+  <strong style="letter-spacing:.16em;font-size:.78rem;color:var(--paper)">PATIENT ZERO</strong>
+  <button type="button" data-act="mute">${muted?'SOUND OFF':'SOUND'}</button></div>`}
+
+function wsURL(){const p=location.protocol==='https:'?'wss:':'ws:';return p+'//'+location.host+'/ws'}
+function connect(onOpen){
+  if(net.ws&&(net.ws.readyState===0||net.ws.readyState===1)){if(onOpen&&net.ws.readyState===1)onOpen();return;}
+  net.status='connecting';
+  const ws=new WebSocket(wsURL());
+  net.ws=ws;
+  ws.onopen=()=>{net.status='open';net.retry=0;if(onOpen)onOpen();render();};
+  ws.onclose=()=>{
+    net.status='closed';
+    if(net.code&&net.name&&screen!=='home'){
+      const wait=Math.min(8000,500*Math.pow(2,net.retry++));
+      setTimeout(()=>connect(()=>send({type:'join',code:net.code,name:net.name})),wait);
+    }
+    render();
+  };
+  ws.onerror=()=>{};
+  ws.onmessage=ev=>{
+    let m;try{m=JSON.parse(ev.data)}catch(e){return}
+    if(m.type==='error'){errMsg=m.message;render();return}
+    if(m.type==='created'||m.type==='joined'){
+      net.code=m.code;net.you=m.you;errMsg='';
+      if(m.reconnected) toast='Reconnected';
+      screen='lobby';
+    }
+    if(m.type==='lobby'){net.lobby=m.lobby;if(!net.pub)screen='lobby'}
+    if(m.type==='state'){
+      const prev=net.pub&&net.pub.phase;
+      net.pub=m.public;net.priv=m.private;if(m.lobby)net.lobby=m.lobby;
+      screen='online';
+      if(m.public.phase==='win'&&prev!=='win') snd(m.public.winner==='humans'?'winH':'winI');
+      else if(m.public.pub&&m.public.pub.kind==='cure'&&prev!==m.public.phase) snd('cure');
+      else if(m.public.pub&&m.public.pub.kind==='outbreak'&&prev!==m.public.phase) snd('out');
+    }
+    if(m.type==='chat'){net.chat.push({name:m.name,text:m.text});if(net.chat.length>40)net.chat.shift()}
+    if(m.type==='info'){toast=m.message}
+    if(m.type==='replaced'){toast=m.message;net.ws=null}
+    render();
+  };
+}
+function send(obj){if(net.ws&&net.ws.readyState===1)net.ws.send(JSON.stringify(obj));else errMsg='Not connected'}
+
+function act(a){
+  if(screen==='hot'||screen==='hotlock'){
+    const g=hot.game;if(!g)return;
+    const r=E.applyAction(g,a.pid,a);
+    if(r&&r.error){errMsg=r.error;render();return}
+    errMsg='';
+    afterHotAction(a);
+    render();return;
+  }
+  send(a);
+}
+
+function afterHotAction(a){
+  const g=hot.game, ph=g.phase;
+  if(ph==='win'){hot.view='show';screen='hot';return}
+  if(a.type==='ready'){
+    if(ph==='night'){
+      hot.nightI++;
+      hot.lock=g.players[hot.nightI].id;
+      hot.view='lock';screen='hotlock';
+      return;
+    }
+    hot.lock=g.leader;hot.view='lock';screen='hotlock';
+    return;
+  }
+  const priv={nominate:g.leader,vote:nextVoter(),discard:g.leader,medic:g.medic,'veto-leader':g.leader,power:g.leader,'power-result':g.leader};
+  if(priv[ph]!=null){
+    hot.lock=priv[ph];hot.view='lock';screen='hotlock';
+    return;
+  }
+  hot.view='show';screen='hot';
+}
+function nextVoter(){
+  const g=hot.game, alive=g.players.filter(p=>p.alive);
+  const w=alive.find(p=>g.votes[p.id]===undefined);
+  return w?w.id:null;
+}
+function hotActor(){
+  const g=hot.game;if(!g)return null;
+  if(g.phase==='nominate'||g.phase==='discard'||g.phase==='power'||g.phase==='power-result'||g.phase==='veto-leader')return g.leader;
+  if(g.phase==='medic')return g.medic;
+  if(g.phase==='vote')return nextVoter();
+  if(g.phase==='night')return g.players[hot.nightI]&&g.players[hot.nightI].id;
+  return null;
+}
+
+function startHot(){
+  const arr=names.map(n=>n.trim()).filter(Boolean);
+  try{hot.game=E.createGame(arr)}catch(e){errMsg=e.message;return}
+  hot.nightI=0;hot.lock=hot.game.players[0].id;hot.view='lock';hot.pick=null;screen='hotlock';errMsg='';
+}
+
+function render(){
+  let html='';
+  if(errMsg) html+=`<div class="err">${esc(errMsg)}</div>`;
+  if(screen==='home'){
+    html=`<div style="padding:12px 4px">${VIR}<h1>PATIENT ZERO</h1>
+      <p class="sub">A social deduction game for 5–10 players. The outpost is already compromised.</p>
+      <button class="btn p" data-act="go-online">Play online — room code</button>
+      <button class="btn g" data-act="go-hot">Pass-and-play on one device</button>
+      <button class="btn g" data-act="rules">How to play</button>
+      <p class="center fine">Non-commercial fan adaptation. No ads, no payments. v2</p></div>`;
+  }else if(screen==='rules'){
+    html=`<div>${RULES}<button class="btn p" data-act="rules-back">Back</button></div>`;
+  }else if(screen==='online-start'){
+    html=`<div>${VIR}<h1>ONLINE</h1><p class="sub">Each player uses their own phone. One person creates a room and shares the 4-letter code.</p>
+      <div class="cardx"><h3>Your name</h3><input type="text" id="nm" maxlength="16" value="${esc(net.name)}" placeholder="Name">
+      <button class="btn p" data-act="create">Create a room</button>
+      <p class="center muted" style="margin:12px 0">or join</p>
+      <input type="text" id="code" maxlength="4" placeholder="CODE" style="text-transform:uppercase;letter-spacing:.2em;text-align:center;font-weight:800">
+      <button class="btn g" data-act="join">Join a room</button></div>
+      <button class="btn g" data-act="home">Back</button></div>`;
+  }else if(screen==='lobby'){
+    const L=net.lobby||{players:[],code:net.code,host:net.you};
+    const n=(L.players||[]).length;
+    const isHost=net.you&&L.host&&net.you.toLowerCase()===L.host.toLowerCase();
+    html=`${topnav()}<div class="cardx center"><div class="muted">ROOM CODE</div><div class="codebig">${esc(L.code||net.code)}</div>
+      <button class="btn g sm" data-act="copy">Copy code</button>
+      <p class="fine">${net.status==='open'?'Connected':'Connecting…'} · ${n} player${n===1?'':'s'} (need 5–10)</p></div>
+      <div class="cardx"><h3>Players</h3>${(L.players||[]).map(p=>`<div class="seat"><span>${esc(p.name)}${L.host===p.name?' · host':''}</span><span class="${p.connected?'dotok':'dotoff'}">${p.connected?'online':'offline'}</span></div>`).join('')}
+      ${isHost?`<button class="btn p" data-act="start-game" ${n<5||n>10?'disabled':''}>Begin the night shift</button>`:`<p class="muted">Waiting for ${esc(L.host||'the host')} to start.</p>`}
+      </div><button class="btn g" data-act="home">Leave</button>`;
+  }else if(screen==='hotsetup'){
+    const n=names.length;
+    html=`<div>${VIR}<h1>PASS-AND-PLAY</h1><p class="sub">Gather around one phone. Hand it over when the screen says to.</p>
+      <div class="cardx"><h3>Who is playing?</h3>
+      ${names.map((nm,i)=>`<label class="nm"><span>${i+1}</span><input class="name-in" type="text" value="${esc(nm)}" maxlength="16"></label>`).join('')}
+      <div class="row" style="margin-top:8px"><button class="btn g sm" data-act="add" ${n>=10?'disabled':''}>Add player</button>
+      <button class="btn g sm" data-act="rem" ${n<=5?'disabled':''}>Remove</button></div>
+      <p class="fine">${n} players. Names must be unique.</p></div>
+      <button class="btn p" data-act="hot-start">Begin the night shift</button>
+      <button class="btn g" data-act="home">Back</button></div>`;
+  }else if(screen==='hotlock'){
+    const g=hot.game, p=g&&g.players.find(x=>x.id===hot.lock);
+    html=`<div class="lock">${VIR}<h2>HAND THE DEVICE TO</h2><div class="who">${esc(p?p.name:'')}</div>
+      <p class="muted">Only ${esc(p?p.name:'they')} should look. Everyone else, look away.</p>
+      <button class="btn p" data-act="unlock" style="margin-top:18px">I am ${esc(p?p.name:'')} — show my screen</button></div>`;
+  }else if(screen==='hot'||screen==='online'){
+    html+=gameView();
+  }else html+=`<p>Unknown screen</p><button class="btn" data-act="home">Home</button>`;
+  if(toast) html+=`<p class="center fine">${esc(toast)}</p>`;
+  app.innerHTML=html;
+}
+
+function gameView(){
+  const online=screen==='online';
+  const g=online?null:hot.game;
+  const pub=online?net.pub:(g&&E.publicState(g));
+  const priv=online?net.priv:(g&&E.privateState(g, actorForView(g)));
+  if(!pub)return `<p>Waiting for game state…</p>`;
+  if(pub.phase==='win') return winView(pub);
+  // hotseat private screens
+  if(!online && ['night','nominate','vote','discard','medic','veto-leader','power','power-result'].includes(pub.phase) && hot.view==='show'){
+    return privateView(pub,priv,true);
+  }
+  if(online){
+    const you=priv&&priv.you;
+    if(priv&&priv.canAct&&['night','nominate','vote','discard','medic','veto-leader','power','power-result'].includes(pub.phase))
+      return topnav()+boardChrome(pub)+privateView(pub,priv,false);
+    return topnav()+boardChrome(pub)+waitingView(pub,priv)+chatBox();
+  }
+  // public hotseat
+  return topnav()+boardChrome(pub)+publicPrompt(pub)+logHtml(pub);
+}
+function actorForView(g){
+  if(!g)return 0;
+  if(hot.lock!=null)return hot.lock;
+  return hotActor()!=null?hotActor():g.leader;
+}
+function boardChrome(pub){return trackHtml(pub)+playersHtml(pub)}
+function chatBox(){
+  const lines=net.chat.slice(-8).map(c=>`<div><b>${esc(c.name)}</b> ${esc(c.text)}</div>`).join('');
+  return `<div class="log">${lines||'<div>Table talk appears here.</div>'}</div>
+    <div class="chat"><input type="text" id="chat" maxlength="200" placeholder="Say something to the table"><button class="btn g sm" data-act="chat-send">Send</button></div>`;
+}
+function waitingView(pub,priv){
+  const names=pub.players.filter(p=>p.alive).map(p=>p.name);
+  let msg='Waiting…';
+  if(pub.phase==='night') msg='Players are reading their roles.';
+  else if(pub.phase==='nominate') msg=pub.players[pub.leader].name+' is nominating a Medic.';
+  else if(pub.phase==='vote'){
+    const pending=pub.players.filter(p=>p.alive&&pub.votes&&pub.votes[p.id]===undefined).map(p=>p.name);
+    msg='Waiting for votes: '+pending.join(', ');
+  }
+  else if(pub.phase==='vote-results') return publicPrompt(pub);
+  else if(pub.phase==='discard') msg=nameOf(pub,pub.leader)+' is burying a supply card.';
+  else if(pub.phase==='medic') msg=nameOf(pub,pub.medic)+' is choosing which card takes effect.';
+  else if(pub.phase==='veto-leader') msg=nameOf(pub,pub.leader)+' is deciding whether to agree to a veto.';
+  else if(pub.phase==='power') msg=nameOf(pub,pub.leader)+' is using a Leader power'+(pub.power?': '+E.powerLabel(pub.power):'')+'.';
+  else if(pub.phase==='power-result') msg=nameOf(pub,pub.leader)+' is reading a private blood-test result.';
+  else if(pub.phase==='enact-pub') return publicPrompt(pub);
+  return `<div class="cardx"><h3>Your role</h3>${priv&&priv.info?`<div class="tag ${priv.info.team==='human'?'h':priv.info.team==='zero'?'z':'i'}">${esc(priv.info.tag)}</div><p class="muted">${esc(priv.info.body)}</p>`:''}
+    <p style="margin-top:10px">${esc(msg)}</p></div>`+logHtml(pub);
+}
+function nameOf(pub,id){const p=pub.players.find(x=>x.id===id);return p?p.name:'?'}
+function publicPrompt(pub){
+  if(pub.phase==='vote-results'&&pub.pub){
+    const v=pub.pub;
+    return `<div class="cardx"><h3>Votes revealed</h3>
+      ${pub.players.filter(p=>p.alive).map(p=>`<div class="vrow"><span>${esc(p.name)}</span><span class="${v.votes&&v.votes[p.id]?'yesv':'nov'}">${v.votes&&v.votes[p.id]?'YES':'NO'}</span></div>`).join('')}
+      <p style="margin-top:10px"><b>${v.passed?'Confirmed':'Voted down'}</b> ${v.yes}–${v.no}.</p>
+      <button class="btn p" data-act="continueVotes">Continue</button></div>`;
+  }
+  if(pub.phase==='enact-pub'&&pub.pub){
+    const p=pub.pub;let inner='';
+    if(p.kind==='cure') inner=`<div class="tag h">CURE</div><h3>A Cure was administered</h3><p>Cures ${pub.cures}/5.</p>`;
+    else if(p.kind==='outbreak') inner=`<div class="tag i">OUTBREAK</div><h3>${p.chaos?'Panic in the supply bay':'An Outbreak spread'}</h3><p>Outbreaks ${pub.outbreaks}/6.${p.pwr?' A Leader power follows.':p.chaos?' No Leader power after a panic card.':''}</p>`;
+    else if(p.kind==='quarantine') inner=`<div class="tag i">QUARANTINE</div><h3>${esc(p.name)} is out</h3><p>Their type was not revealed. If they had been Patient Zero, the Humans would have won just now.</p>`;
+    else if(p.kind==='veto') inner=`<div class="tag z">VETO</div><h3>The draw was vetoed</h3><p>Both cards were buried. Failed confirmations: ${pub.fails}/3.</p>`;
+    return `<div class="cardx">${inner}<button class="btn p" data-act="continue">Continue</button></div>`;
+  }
+  return `<div class="cardx"><p>Waiting for the next step.</p></div>`;
+}
+function privateView(pub,priv,hotseat){
+  const pick=hot.pick;
+  if(pub.phase==='night'){
+    const info=priv.info||{};
+    return `<div class="role">${VIR}<div class="tag ${info.team==='human'?'h':info.team==='zero'?'z':'i'}">${esc(info.tag)}</div>
+      <h3>${esc(nameOf(pub,priv.you))}</h3><p>${esc(info.body)}</p>
+      <button class="btn p" data-act="ready">${hotseat?'Hide and pass':'I have my role — ready'}</button></div>`;
+  }
+  if(pub.phase==='nominate'){
+    const ids=priv.eligible||[];
+    return `<div class="role"><h3>${esc(nameOf(pub,pub.leader))}, nominate a Medic</h3>
+      <p class="muted">Choose a living teammate you are allowed to nominate.</p>
+      ${playersHtml(pub,{pickable:true,selected:pick,ids})}
+      <button class="btn p" data-act="nominate" ${pick==null?'disabled':''}>Confirm ${pick!=null?esc(nameOf(pub,pick)):'Medic'}</button></div>`;
+  }
+  if(pub.phase==='vote'){
+    return `<div class="role"><h3>${esc(nameOf(pub,priv.you))}, your vote</h3>
+      <p>Confirm <b>${esc(nameOf(pub,pub.leader))}</b> as Squad Leader and <b>${esc(nameOf(pub,pub.medic))}</b> as Medic?</p>
+      <p class="fine">Failed confirmations: ${pub.fails}/3. A third failure uses the top supply card automatically.</p>
+      <button class="btn y" data-act="vote-yes">Yes — confirm them</button>
+      <button class="btn n" data-act="vote-no">No — reject them</button></div>`;
+  }
+  if(pub.phase==='discard'){
+    const hand=priv.hand||[];
+    return `<div class="role"><h3>${esc(nameOf(pub,pub.leader))}, bury one card</h3>
+      <p class="muted">Bury one card. The Medic will choose between the other two. The buried card stays secret.</p>
+      <div class="supply">${hand.map((c,i)=>supplyCard(c,i,pick===i)).join('')}</div>
+      <button class="btn p" data-act="bury" ${pick==null?'disabled':''}>Bury this card</button></div>`;
+  }
+  if(pub.phase==='medic'){
+    const hand=priv.hand||[];
+    return `<div class="role"><h3>${esc(nameOf(pub,pub.medic))}, choose what takes effect</h3>
+      <p class="muted">Pick one card to put into effect. The other is buried in secret.</p>
+      <div class="supply">${hand.map((c,i)=>supplyCard(c,i,pick===i)).join('')}</div>
+      <button class="btn p" data-act="enact" ${pick==null?'disabled':''}>Put this into effect</button>
+      ${pub.vetoOn?`<button class="btn g" data-act="veto">Ask to veto this draw</button>`:''}</div>`;
+  }
+  if(pub.phase==='veto-leader'){
+    return `<div class="role"><h3>${esc(nameOf(pub,pub.leader))}, veto?</h3>
+      <p>The Medic wants to bury both remaining cards. If you agree, a failed-confirmation mark is added.</p>
+      <button class="btn y" data-act="veto-yes">Agree to the veto</button>
+      <button class="btn n" data-act="veto-no">Refuse — they must choose</button></div>`;
+  }
+  if(pub.phase==='power'&&pub.power==='peek'){
+    const top=priv.peek||[];
+    return `<div class="role"><h3>Supply peek</h3><p class="muted">These are the next cards, in order. They stay where they are.</p>
+      <div class="supply">${top.map((c,i)=>supplyCard(c,i,false)).join('')||'<p>The deck is empty.</p>'}</div>
+      <button class="btn p" data-act="peek-done">Done</button></div>`;
+  }
+  if(pub.phase==='power'){
+    const title=E.powerLabel(pub.power);
+    const ids=E.legalTargets?null:null;
+    const targets=pub.players.filter(p=>p.alive&&p.id!==pub.leader&&!(pub.power==='blood'&&p.investigated)).map(p=>p.id);
+    return `<div class="role"><h3>${esc(title)}</h3>
+      <p class="muted">${pub.power==='blood'?'Privately learn whether one other living player is Human or Infected. Patient Zero reads as Infected. A player may be tested only once.':pub.power==='special'?'Choose who will be the next Squad Leader. After their shift, leadership returns to the person after you.': 'Remove one other living player. If they are Patient Zero, Humans win. Otherwise their type is not announced.'}</p>
+      ${playersHtml(pub,{pickable:true,selected:pick,ids:targets})}
+      <button class="btn ${pub.power==='quarantine'?'d':'p'}" data-act="power-go" ${pick==null?'disabled':''}>Confirm</button></div>`;
+  }
+  if(pub.phase==='power-result'&&priv.blood){
+    return `<div class="role"><h3>Blood test result</h3>
+      <p><b>${esc(priv.blood.name)}</b> is <b>${esc(priv.blood.result)}</b>.</p>
+      <p class="fine">This is private. You may later tell the truth or lie.</p>
+      <button class="btn p" data-act="blood-done">Done</button></div>`;
+  }
+  return publicPrompt(pub)+logHtml(pub);
+}
+function winView(pub){
+  const hum=pub.winner==='humans';
+  const roles=pub.roles||[];
+  return `<div class="win">${VIR}<div class="tag ${hum?'h':'i'}">${hum?'HUMANS WIN':'INFECTED WIN'}</div>
+    <h2>${hum?'The outpost holds':'The outbreak takes the outpost'}</h2>
+    <p>${esc(pub.winWhy)}</p>
+    <div class="cardx roles-end">${roles.map(p=>{
+      const name=(pub.players.find(x=>x.id===p.id)||{}).name||'';
+      const lab=p.role==='zero'?'Patient Zero':p.role==='infected'?'Infected':'Human';
+      const col=p.role==='zero'?'var(--zero)':p.role==='infected'?'#f0a8a2':'var(--goo)';
+      return `<div><span>${esc(name)}${p.alive?'':' (quarantined)'}</span><b style="color:${col}">${lab}</b></div>`;
+    }).join('')}</div>
+    ${logHtml(pub)}
+    <button class="btn p" data-act="home">New game</button></div>`;
+}
+
+function readNames(){const ins=app.querySelectorAll('.name-in');if(ins.length)names=[...ins].map(i=>i.value)}
+function pid(){return screen==='online'?(net.priv&&net.priv.you):hot.lock}
+
+app.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act],[data-pick],[data-card]');
+  if(!t)return;
+  resumeAud();
+  if(t.dataset.act==='mute'){muted=!muted;render();return}
+  if(t.dataset.act==='rules'){backScreen=screen;screen='rules';snd('tap');render();return}
+  if(t.dataset.act==='rules-back'){screen=backScreen||'home';snd('tap');render();return}
+  if(t.dataset.act==='home'){
+    if(screen==='lobby'||screen==='online') send({type:'leave'});
+    screen='home';hot.game=null;net.pub=null;errMsg='';toast='';snd('tap');render();return;
+  }
+  if(t.dataset.act==='go-online'){screen='online-start';snd('tap');render();return}
+  if(t.dataset.act==='go-hot'){screen='hotsetup';snd('tap');render();return}
+  if(t.dataset.act==='add'){readNames();if(names.length<10)names.push('Player '+(names.length+1));render();return}
+  if(t.dataset.act==='rem'){readNames();if(names.length>5)names.pop();render();return}
+  if(t.dataset.act==='hot-start'){readNames();snd('tap');startHot();render();return}
+  if(t.dataset.act==='create'){
+    const name=(document.getElementById('nm')||{}).value||'';
+    net.name=name.trim();connect(()=>send({type:'create',name:net.name}));snd('tap');return;
+  }
+  if(t.dataset.act==='join'){
+    const name=(document.getElementById('nm')||{}).value||'';
+    const code=(document.getElementById('code')||{}).value||'';
+    net.name=name.trim();net.code=code.trim().toUpperCase();
+    connect(()=>send({type:'join',code:net.code,name:net.name}));snd('tap');return;
+  }
+  if(t.dataset.act==='copy'){
+    const c=net.code||(net.lobby&&net.lobby.code)||'';
+    if(c&&navigator.clipboard) navigator.clipboard.writeText(c).then(()=>{toast='Code copied';render()}).catch(()=>{});
+    return;
+  }
+  if(t.dataset.act==='start-game'){send({type:'start'});snd('tap');return}
+  if(t.dataset.act==='unlock'){hot.view='show';screen='hot';snd('go');render();return}
+  if(t.dataset.pick!=null){hot.pick=+t.dataset.pick;snd('tap');render();return}
+  if(t.dataset.card!=null){hot.pick=+t.dataset.card;snd('tap');render();return}
+  const me=pid();
+  if(t.dataset.act==='ready'){act({type:'ready',pid:me});hot.pick=null;return}
+  if(t.dataset.act==='nominate'){act({type:'nominate',pid:me,medicId:hot.pick});hot.pick=null;return}
+  if(t.dataset.act==='vote-yes'){act({type:'vote',pid:me,yes:true});snd('yes');return}
+  if(t.dataset.act==='vote-no'){act({type:'vote',pid:me,yes:false});snd('no');return}
+  if(t.dataset.act==='bury'){act({type:'bury',pid:me,index:hot.pick});hot.pick=null;return}
+  if(t.dataset.act==='enact'){act({type:'enact',pid:me,index:hot.pick});hot.pick=null;return}
+  if(t.dataset.act==='veto'){act({type:'proposeVeto',pid:me});return}
+  if(t.dataset.act==='veto-yes'){act({type:'vetoResponse',pid:me,agree:true});return}
+  if(t.dataset.act==='veto-no'){act({type:'vetoResponse',pid:me,agree:false});return}
+  if(t.dataset.act==='power-go'){act({type:'powerTarget',pid:me,playerId:hot.pick});hot.pick=null;return}
+  if(t.dataset.act==='peek-done'){act({type:'peekDone',pid:me});return}
+  if(t.dataset.act==='blood-done'){act({type:'bloodDone',pid:me});return}
+  if(t.dataset.act==='continueVotes'){act({type:'continueVotes',pid:me});snd('tap');return}
+  if(t.dataset.act==='continue'){act({type:'continue',pid:me});snd('tap');return}
+  if(t.dataset.act==='chat-send'){
+    const inp=document.getElementById('chat');
+    if(inp&&inp.value.trim()){send({type:'chat',text:inp.value.trim()});inp.value='';}
+    return;
+  }
+});
+app.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target&&e.target.id==='chat'){e.preventDefault();const b=app.querySelector('[data-act=chat-send]');if(b)b.click()}
+});
+app.addEventListener('pointerdown',resumeAud,{passive:true});
+render();
+})();
+</script>
+</body>
+</html>
